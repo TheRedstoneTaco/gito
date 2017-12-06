@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+import analyzer
+import sys
+import helpers
+import os
+import termcolor
+
+def main():
+    # validate input
+    if len(sys.argv) != 2:
+        sys.exit("usage: ./tweets (screen-name)")
+
+    # get user's 50 most recent tweets
+    screen_name = sys.argv[1]
+    count = 50
+    tweets = helpers.get_user_timeline(screen_name, count)
+
+    positives = os.path.join(sys.path[0], "positive-words.txt")
+    negatives = os.path.join(sys.path[0], "negative-words.txt")
+    anl = analyzer.Analyzer(positives, negatives)
+
+    for tweet in tweets:
+        score = anl.analyze(tweet)
+        if score > 0:
+            # green
+            print(termcolor.colored(str(int(score)) + " " + tweet, "green"))
+        elif score < 0:
+            # red
+            print(termcolor.colored(str(int(score)) + " " + tweet, "red"))
+        else:
+            #yellow
+            print(termcolor.colored(str(int(score)) + " " + tweet, "yellow"))
+
+if __name__ == "__main__":
+    main()
